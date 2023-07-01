@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <title>login</title>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Login</h2>
+        <form autocomplete="off" onsubmit="login(event)">
+            <div class="textbox">
+                <input type="email" placeholder="Your Email ID" id="email" required>
+            </div>
+            <div class="textbox">
+                <input type="password" placeholder="Enter Your Password" id="password" required>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
+    <script>
+        function login(e){
+            e.preventDefault();
+            userDetail = {
+                email: e.target.email.value,
+                pass: e.target.password.value
+            }
+
+            axios.post('http://localhost:3000/login', userDetail)
+            .then(response=>{
+                console.log(response)
+            }).catch(err=>{console.log(err)})
+        }
+    </script>
+</body>
+</html>
