@@ -28,3 +28,24 @@ exports.PostSignUp = async(req,res,next)=>{
 }
 
 }
+
+exports.PostLogin = async (req,res,next)=>{
+    try{
+    const email = req.body.email
+    const pass = req.body.pass
+
+    const emailExist = await User.findOne({where:{email:email}})
+    if(emailExist){
+        const passExist = await User.findOne({where:{pass:pass}})
+        if(passExist){
+            res.json({"message": "login succesfully"})
+        }
+        else{
+            res.json({"message":"password inncorect"})
+        }
+    }
+    res.json({"message":"user not found"})
+    }catch(err){
+        console.log(err)
+    }
+}

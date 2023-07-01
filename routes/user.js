@@ -6,5 +6,5 @@ const userControler = require('../controller/user')
 
 
 router.post('/signup',userControler.PostSignUp)
-
+router.post('/login',userControler.PostLogin)
 module.exports = router
