@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/css/main.css"/>
+    <title>Sign Up</title>
+</head>
+<body>
+    <div class="login-box">
+        <h2> Sign Up </h2>
+        <form autocomplete="off" onsubmit="postLogin(event)" >
+            <div class="textbox">
+                <input type="text" id="name" placeholder="Your Name" autocomplete="off" required>
+            </div>
+            <div class="textbox">
+                <input type="email" id="email" placeholder="Your Email Id" autocomplete="none" required>
+            </div>
+            <div class="textbox">
+                <input type="tel" id="phone" placeholder="Your Phone No" autocomplete="none" required minlength="10" maxlength="10">
+            </div>
+            <div class="textbox">
+                <input type="password" id="password" placeholder="Set Your Password" autocomplete="none" required>
+            </div>
+           
+            <button type="submit" class="btn">signup</button>
+            
+            
+           
+        </form>
+    </div>  
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
+    <script>
+        function postLogin(event){
+            event.preventDefault();
+            const name = event.target.name.value;
+            const email = event.target.email.value;
+            const phone = event.target.phone.value;
+            const password = event.target.password.value;
+            userDetail = {
+                name:name,
+                phone:phone,
+                email:email,
+                pass:password
+            }
+            axios.post('http://localhost:3000/signup', userDetail)
+             .then(response=>{
+                 console.log(response)
+             })
+             .catch(err=>{
+                 console.log('this is err')
+                })
+        }
+    </script>
+</body>
+</html>
