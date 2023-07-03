@@ -1,5 +1,7 @@
 const { where } = require('sequelize')
 const User = require('../model/user')
+const bcrypt = require("bcrypt")
+
 
 exports.PostSignUp = async(req,res,next)=>{
     try{
@@ -15,14 +17,19 @@ exports.PostSignUp = async(req,res,next)=>{
     if (emailExists ) {
       res.json("Email already registered")
     }
-
-    const data = await User.create({
-        name:name,
-        email:email, 
-        phone:phone,
-        pass:pass
-    })
-    res.status(201).json({user:data})
+    const saltRounds = 10
+    bcrypt.genSalt(saltRounds).then(salt=>{
+        return bcrypt.hash(pass,salt)
+    }).then(hash =>{
+        const data =  User.create({
+            name:name,
+            email:email, 
+            phone:phone,
+            pass:hash
+        })
+        res.status(201).json({user:data})
+    }).catch(err=>{console.log(err.message)})
+    
 }catch(err){
     console.log(err)
 }
@@ -36,16 +43,23 @@ exports.PostLogin = async (req,res,next)=>{
 
     const emailExist = await User.findOne({where:{email:email}})
     if(emailExist){
-        const passExist = await User.findOne({where:{pass:pass}})
-        if(passExist){
-            res.json({"message": "login succesfully"})
-        }
-        else{
-            res.json({"message":"password inncorect"})
-        }
+        bcrypt.compare(pass,emailExist.pass,function(err,response){
+            if(err){
+                return res.json({success: false, message: 'something went wrong'})
+            }
+            if(response){
+               return res.json({"message": "login succesfully"})
+            }
+            else{
+                return res.status(401).json({"message":"password inncorect"})
+            }
+        })
+        
     }
-    res.json({"message":"user not found"})
-    }catch(err){
+    else{
+        return res.status(404).json({"message":"user not found"})
+    }    
+}catch(err){
         console.log(err)
     }
 }
