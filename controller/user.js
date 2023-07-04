@@ -1,6 +1,8 @@
 const { where } = require('sequelize')
 const User = require('../model/user')
 const bcrypt = require("bcrypt")
+const jwt = require('jsonwebtoken');
+
 
 
 exports.PostSignUp = async(req,res,next)=>{
@@ -36,6 +38,11 @@ exports.PostSignUp = async(req,res,next)=>{
 
 }
 
+function generateAccessToken(id){
+    const secretKey = 'Suraj@sharpner'
+    return jwt.sign(id,`${secretKey}`)
+}
+
 exports.PostLogin = async (req,res,next)=>{
     try{
     const email = req.body.email
@@ -48,7 +55,9 @@ exports.PostLogin = async (req,res,next)=>{
                 return res.json({success: false, message: 'something went wrong'})
             }
             if(response){
-               return res.json({"message": "login succesfully"})
+                const token = generateAccessToken(emailExist.id)
+                // console.log(token)
+               return res.json({"message": "login succesfully",token:token})
             }
             else{
                 return res.status(401).json({"message":"password inncorect"})

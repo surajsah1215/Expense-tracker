@@ -46,7 +46,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
 <script>
     window.addEventListener("DOMContentLoaded",async ()=>{
-    await axios.get("http://localhost:3000/user/get-expense/")
+        const token = localStorage.getItem('token')
+    await axios.get("http://localhost:3000/user/get-expense/",{headers:{"Authorization":token}})
     .then((respone)=> {
     for(var i=0; i<respone.data.expenses.length; i++){
         showExpense(respone.data.expenses[i]);
@@ -56,6 +57,21 @@
     }).catch(err => console.log(err));
 
 })
+function deleteExpenses(e,id){
+    const token = localStorage.getItem('token')
+    axios.delete(`http://localhost:3000/delete-expense/${id}`,{headers:{"Authorization":token}})
+        .then((res)=> {
+            console.log(res)
+            // li.remove();
+            removeExpenseFromUI(id);
+        })
+        .catch(err => console.log(err));
+    }
+
+function removeExpenseFromUI(id){ 
+    const expenseId = `expense-${id}`;
+    document.getElementById(expenseId).remove()
+    }
 
 function showExpense(expense){
 
@@ -68,20 +84,8 @@ function showExpense(expense){
             Delete Expense
         </button>
     </li>`
-    function deleteExpenses(e,id){
-        axios.delete(`http://localhost:3000/delete-expense/${id}`)
-        .then((res)=> {
-            console.log(res)
-            // li.remove();
-            removeExpenseFromUI(id);
-        })
-        .catch(err => console.log(err));
-    }
-
-    function removeExpenseFromUI(id){ 
-    const expenseId = `expense-${id}`;
-    document.getElementById(expenseId).remove()
-    }
+    
+   
 }
 function addNewExpense(e){
 
@@ -91,8 +95,9 @@ function addNewExpense(e){
         description: e.target.description.value,
         category: e.target.category.value
     }
+    const token = localStorage.getItem('token')
 
-    axios.post('http://localhost:3000/user/addExpense', expenseDetail)
+    axios.post('http://localhost:3000/user/addExpense', expenseDetail, {headers:{"Authorization":token}})
     .then((result)=>{
         // console.log(result.data.data.amount)
         showExpense(result.data.data)

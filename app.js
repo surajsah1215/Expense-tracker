@@ -16,7 +16,8 @@ app.use(bodyParser.json())
 
 app.use(route)
 
-
+User.hasMany(Expense)
+Expense.belongsTo(User)
 
 
 sequelize.sync()
