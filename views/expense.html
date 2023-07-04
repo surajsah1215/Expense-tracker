@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="../public/css/main.css"> -->
+    <title>Expense</title>
+</head>
+<body>
+    <div class="expense-box">
+        <h2>Expense</h2>
+        <form onsubmit="addNewExpense(event)">
+            <div class="textbox">
+                <label for="expense">Expense</label>
+                <input type="number" id="expense">
+            </div>
+            <div class="textbox">
+                <label for="description">Description</label>
+                <input type="textbox" id="description">
+            </div>
+            <div class="textbox">
+                <label for="category">Select Category</label>
+                <select id="category">
+                    <option id="food">Food</option>
+                    <option id="petrol">Petrol</option>
+                    <option id="electricity">electricity</option>
+                    <option id="Movie">Movie</option>
+                </select>
+            </div>
+            <button class="btn">Add Expense</button>
+            <!-- type="submit" -->
+           
+            
+           
+        </form>
+        <div class="expense-detail">
+        
+            <ul class="expenseList"></ul>
+           
+        </div>
+    </div>
+   
+   
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
+<script>
+    window.addEventListener("DOMContentLoaded",async ()=>{
+    await axios.get("http://localhost:3000/user/get-expense/")
+    .then((respone)=> {
+    for(var i=0; i<respone.data.expenses.length; i++){
+        showExpense(respone.data.expenses[i]);
+ 
+    }
+    // console.log(respone)
+    }).catch(err => console.log(err));
+
+})
+
+function showExpense(expense){
+
+    const parentElement = document.querySelector('.expenseList');
+    const expenseElemId = `expense-${expense.id}`;
+    parentElement.innerHTML += `
+    <li id=${expenseElemId}>
+        ${expense.amount} - ${expense.category} - ${expense.description}
+        <button onclick='deleteExpenses(event, ${expense.id})'>
+            Delete Expense
+        </button>
+    </li>`
+    function deleteExpenses(e,id){
+        axios.delete(`http://localhost:3000/delete-expense/${id}`)
+        .then((res)=> {
+            console.log(res)
+            // li.remove();
+            removeExpenseFromUI(id);
+        })
+        .catch(err => console.log(err));
+    }
+
+    function removeExpenseFromUI(id){ 
+    const expenseId = `expense-${id}`;
+    document.getElementById(expenseId).remove()
+    }
+}
+function addNewExpense(e){
+
+    e.preventDefault(e)
+    const expenseDetail = {
+        amount: e.target.expense.value,
+        description: e.target.description.value,
+        category: e.target.category.value
+    }
+
+    axios.post('http://localhost:3000/user/addExpense', expenseDetail)
+    .then((result)=>{
+        // console.log(result.data.data.amount)
+        showExpense(result.data.data)
+    }).catch(err => console.log(err))
+
+    
+       
+    }
+</script>
