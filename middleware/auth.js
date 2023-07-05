@@ -7,7 +7,7 @@ const verifyToken = (req,res,next)=>{
     const secretKey = 'Suraj@sharpner'
 
     const userId = jwt.verify(token,`${secretKey}`)
-    console.log('user>>>>>',userId)
+    // console.log('user>>>>>',userId)
     User.findByPk(userId).then(user=>{
         // console.log(JSON.stringify(user));
         // console.log(user)

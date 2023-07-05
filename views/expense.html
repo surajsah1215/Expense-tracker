@@ -39,10 +39,12 @@
             <ul class="expenseList"></ul>
            
         </div>
+        <button id="rzp-button">Buy Premium</button>
     </div>
    
    
 </body>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
 <script>
     window.addEventListener("DOMContentLoaded",async ()=>{
@@ -57,6 +59,33 @@
     }).catch(err => console.log(err));
 
 })
+
+document.getElementById('rzp-button').onclick = async function(e){
+    const token = localStorage.getItem('token')
+    const response = await axios.get('http://localhost:3000/purchase/premiummembership',{headers:{"Authorization":token}})
+    console.log(response)
+    var options={
+        "key":response.data.key_id,
+        "order_id":response.data.order.id,
+        "handler" : async function(respone){
+            await axios.post("http://localhost:3000/purchase/updatetransactionstatus",{
+                order_id : options.order_id,
+                payment_id : respone.razorpay_payment_id,
+            },{headers:{"Authorization":token}})
+            alert('you are a premium member now')
+        }
+
+    }
+    const rzp1 = new Razorpay(options)
+    rzp1.open()
+    e.preventDefault()
+
+    rzp1.on('payment.failed',function(respone){
+        console.log(respone)
+        alert('something wrong')
+    })
+}
+
 function deleteExpenses(e,id){
     const token = localStorage.getItem('token')
     axios.delete(`http://localhost:3000/delete-expense/${id}`,{headers:{"Authorization":token}})

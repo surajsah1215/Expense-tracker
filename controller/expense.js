@@ -23,7 +23,13 @@ exports.AddExpense = async(req,res,next)=>{
 
 exports.getExpense = async(req,res,next)=>{
     try{ 
+        if(!req.user.id){
+            return new Error('no data found')
+        }
         const expenses = await Expense.findAll({where:{userId:req.user.id}});
+        // if(!expenses){
+        //     throw new Error('no data found')
+        // }
         res.json({
             expenses
         })

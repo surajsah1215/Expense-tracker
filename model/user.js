@@ -15,7 +15,8 @@ const User = sequelize.define('users',{
         unique:true
     },
     phone: DataTypes.STRING,
-    pass: DataTypes.STRING
+    pass: DataTypes.STRING,
+    ispremium: DataTypes.BOOLEAN
 })
 
 module.exports = User
