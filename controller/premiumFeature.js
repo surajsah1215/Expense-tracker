@@ -1,30 +1,28 @@
 const Expense  = require('../model/expense')
 const User = require('../model/user')
+const sequelize = require('../util/database')
 
 exports.premiumFeature =async (req,res,next)=>{
 
     try{
-    const expense = await Expense.findAll()
-    const user =await User.findAll()
-
-    const data = {}
-    expense.forEach(element => {
-        if(data[element.userId]){
-            data[element.userId] += element.amount 
-        }
-        else{
-        data[element.userId] = element.amount
-         }
-    });
-    const arr = []
-    user.forEach(elem=>{
-        arr.push({name:elem.name,tot_amount:data[elem.id]||0})
+    // const expense = await Expense.findAll({
+    //     attributes : ['userId',[sequelize.fn('sum',sequelize.col('expenses.amount')),'total_amount']],
+    //     group : ['userId']
+    // })
+    
+    const getuserLeaderBoard =await User.findAll({
+        attributes : ['id','name',[sequelize.fn('sum',sequelize.col('expenses.amount')),'total_amount']],
+        include:[
+            {
+                model : Expense,
+                attributes : []
+            }
+        ],
+        group:['users.id'],
+        order:[['total_amount','DESC']]
     })
-    arr.sort((a,b)=>{
-        b.tot_amount - a.tot_amount
 
-    })
-    res.status(200).json({"data":arr})
+    res.status(200).json({"data":getuserLeaderBoard})
 
 
 }catch(err){

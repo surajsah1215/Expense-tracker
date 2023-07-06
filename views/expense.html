@@ -94,7 +94,7 @@ function showLeadBoardData(obj){
     const objId = `obj-${obj.id}`;
     parentElement.innerHTML += `
     <li id=${objId}>
-       Name - ${obj.name} - Toatal Expense - ${obj.tot_amount}
+       Name - ${obj.name} - Toatal Expense - ${obj.total_amount}
     </li>`
 
 }
@@ -112,7 +112,6 @@ function parseJwt (token) {
 document.getElementById('rzp-button').onclick = async function(e){
     const token = localStorage.getItem('token')
     const response = await axios.get('http://localhost:3000/purchase/premiummembership',{headers:{"Authorization":token}})
-    console.log(response)
     var options={
         "key":response.data.key_id,
         "order_id":response.data.order.id,
