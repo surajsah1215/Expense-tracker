@@ -1,4 +1,5 @@
 const Expense  = require('../model/expense')
+const User = require('../model/user')
 
 exports.AddExpense = async(req,res,next)=>{
     try{
@@ -12,6 +13,9 @@ exports.AddExpense = async(req,res,next)=>{
         category:category,
         userId : req.user.id
     })
+    const user = await User.findOne({where:{id:req.user.id}})
+    total_amount  = Number(user.total_amount) + Number(amount)
+    user.update({total_amount:total_amount})
     res.status(201).json({data:data})
 
     }catch(err){
@@ -49,11 +53,19 @@ exports.deleteExpense = async(req,res,next)=>{
             res.status(404).json({sucess:false,message:'Expense doesnt belong to the user'})
         }
         else{
-            res.status(200).json({sucess:true,message:'Deleted sucessfully'})
+            // const user =  User.findOne({where:{id:req.user.id}})
+            // user_amount = Expense.findOne({where:{id:id}})
+            // total_amount  = Number(user.total_amount) - Number(user_amount.amount)
+            // console.log("user>>>",user)
+            // console.log(user_amount.amount,user.total_amount)
+            // user.update({total_amount:total_amount})
+        res.status(200).json({sucess:true,message:'Deleted sucessfully'})
         }
+        
     }).catch(err=>{
         console.log(err)
     })
+    
 
     }
     catch(err){

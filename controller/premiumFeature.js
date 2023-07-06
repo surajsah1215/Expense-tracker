@@ -10,15 +10,19 @@ exports.premiumFeature =async (req,res,next)=>{
     //     group : ['userId']
     // })
     
-    const getuserLeaderBoard =await User.findAll({
-        attributes : ['id','name',[sequelize.fn('sum',sequelize.col('expenses.amount')),'total_amount']],
-        include:[
-            {
-                model : Expense,
-                attributes : []
-            }
-        ],
-        group:['users.id'],
+    // const getuserLeaderBoard =await User.findAll({
+    //     attributes : ['id','name',[sequelize.fn('sum',sequelize.col('expenses.amount')),'total_amount']],
+    //     include:[
+    //         {
+    //             model : Expense,
+    //             attributes : []
+    //         }
+    //     ],
+    //     group:['users.id'],
+    //     order:[['total_amount','DESC']]
+    // })
+    const getuserLeaderBoard = await User.findAll({
+        attributes : ['name','total_amount'],
         order:[['total_amount','DESC']]
     })
 
