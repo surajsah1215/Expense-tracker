@@ -81,7 +81,6 @@ function showIsPremiumUser(){
     btn.addEventListener('click',showLeadboard)
     async function showLeadboard(e){
       const respone = await axios.get('http://localhost:3000/purchase/showLeadBoard')
-      console.log(respone.data.data.length)
         for(var i=0; i<respone.data.data.length; i++){
             showLeadBoardData(respone.data.data[i])
         }
@@ -123,7 +122,6 @@ document.getElementById('rzp-button').onclick = async function(e){
             alert('you are a premium member now')
            
             showIsPremiumUser()
-            console.log(response)
             localStorage.setItem('token',res.data.token)
 
         }
@@ -144,8 +142,6 @@ function deleteExpenses(e,id){
     const token = localStorage.getItem('token')
     axios.delete(`http://localhost:3000/delete-expense/${id}`,{headers:{"Authorization":token}})
         .then((res)=> {
-            console.log(res)
-            // li.remove();
             removeExpenseFromUI(id);
         })
         .catch(err => console.log(err));

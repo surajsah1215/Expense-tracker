@@ -1,8 +1,10 @@
 const Expense  = require('../model/expense')
 const User = require('../model/user')
+const sequelize = require('../util/database')
 
 exports.AddExpense = async(req,res,next)=>{
     try{
+    const t = await sequelize.transaction()
     const amount = req.body.amount
     const description = req.body.description
     const category = req.body.category
@@ -12,14 +14,16 @@ exports.AddExpense = async(req,res,next)=>{
         description:description,
         category:category,
         userId : req.user.id
-    })
-    const user = await User.findOne({where:{id:req.user.id}})
-    total_amount  = Number(user.total_amount) + Number(amount)
-    user.update({total_amount:total_amount})
+    },{tramsaction:t})
+    // const user = await User.findOne({where:{id:req.user.id},tramsaction:t})
+    total_amount  = Number(req.user.total_amount) + Number(amount)
+    await User.update({total_amount:total_amount},{where:{id:req.user.id},tramsaction:t})
+    await t.commit()
     res.status(201).json({data:data})
 
     }catch(err){
-        console.log(err)
+       await t.rollback()
+        return res.status(500).json({"err":err})
     }
 
 
@@ -31,9 +35,7 @@ exports.getExpense = async(req,res,next)=>{
             return new Error('no data found')
         }
         const expenses = await Expense.findAll({where:{userId:req.user.id}});
-        // if(!expenses){
-        //     throw new Error('no data found')
-        // }
+        
         res.json({
             expenses
         })
@@ -46,29 +48,24 @@ exports.getExpense = async(req,res,next)=>{
 
 exports.deleteExpense = async(req,res,next)=>{
     try{
-    const id = req.params.expenseId
-    await Expense.destroy({where:{id:id,userId:req.user.id}}).then(noofrowsdeleted=>{
-        console.log(noofrowsdeleted)
+        const t = await sequelize.transaction()
+        const id = req.params.expenseId
+        const expenseuser = await Expense.findOne({where:{id:id,userId:req.user.id}})
+        const noofrowsdeleted= await Expense.destroy({where:{id:id,userId:req.user.id},tramsaction:t})
         if(noofrowsdeleted==0){
             res.status(404).json({sucess:false,message:'Expense doesnt belong to the user'})
         }
         else{
-            // const user =  User.findOne({where:{id:req.user.id}})
-            // user_amount = Expense.findOne({where:{id:id}})
-            // total_amount  = Number(user.total_amount) - Number(user_amount.amount)
-            // console.log("user>>>",user)
-            // console.log(user_amount.amount,user.total_amount)
-            // user.update({total_amount:total_amount})
+            total_amount  = Number(req.user.total_amount) - Number(expenseuser.amount)
+            await User.update({total_amount:total_amount},{where:{id:req.user.id}})
+            await t.commit()
+           
         res.status(200).json({sucess:true,message:'Deleted sucessfully'})
         }
-        
-    }).catch(err=>{
-        console.log(err)
-    })
-    
-
+  
     }
     catch(err){
+        await t.rollback()
         res.json(err)
     }
 }
