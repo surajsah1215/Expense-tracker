@@ -4,9 +4,9 @@ const router = express.Router();
 
 const forget = require('../controller/forgetPassword')
 
-router.post('/forgetpassword',forget.sendEmailId)
+router.post('/forgetpassword',forget.sendemail)
 
-router.get('/password/resetpassword/:id',forget.resetpassword)
+router.get('/resetpassword/:id',forget.resetpassword)
 
 router.get('/updatepassword/:resetpasswordid', forget.updatepassword)
 

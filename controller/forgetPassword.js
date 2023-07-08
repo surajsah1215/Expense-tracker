@@ -1,60 +1,75 @@
 const uuid = require('uuid');
-const sgMail = require('@sendgrid/mail');
 const bcrypt = require('bcrypt');
-
+require('dotenv').config();
 const User = require('../model/user');
 const Forgotpassword = require('../model/forgetPassword');
 
 
-exports.sendEmailId = async (req,res,next)=>{
-    try{const {email} = req.body
-    const user = await User.findOne({where:{email}})
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
+exports.sendemail = async(req,res,next) => {
+
+try{   
+const {email} = req.body
+var defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+var apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.API_KEY
+
+const sendinblue = new SibApiV3Sdk.TransactionalEmailsApi();
+
+
+const user = await User.findOne({where:{email}})
     if(user){
         const id = uuid.v4()
         Forgotpassword.create({id:id,userId:user.id,isActive:true})
-
         .catch(err=>{
             throw new Error(err)
         })
-    
 
-    sgMail.setApiKey(process.env.SENGRID_API_KEY)
+        
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: 'Reset Password', email: 'expenseTracker@gmail.com' };
+        sendSmtpEmail.to = [{ email: email }];
+        sendSmtpEmail.subject = 'This is the link to change your password';
+        sendSmtpEmail.textContent  = 'click here to reset your password';
+        sendSmtpEmail.htmlContent   =  `<a href="http://localhost:3000/password/resetpassword/${id}">Reset password</a>`
 
-    const msg = {
-        to:email,
-        from: 'yj.rocks.2411@gmail.com',
-        subject : 'Forget Password',
-        text: 'Forget your password',
-        html: `<a href="http://localhost:3000/password/resetpassword/${id}">Reset password</a>`,
+
+        sendinblue.sendTransacEmail(sendSmtpEmail)
+        .then((response) => {
+            console.log('message sent successfully',response)
+            res.status(200).json({ message: 'Email sent successfully' });
+        })
+        .catch((error) => {
+            console.error('Error sending email:', error);
+            res.status(500).json({ error: 'Failed to send email' });
+        });
+
        
     }
-    
-    sgMail.send(msg).then(response =>{
-        res.status(response[0].statusCode).json({message: 'Link to reset password sent to your mail ', sucess: true})
-    })
-    .catch((error) => {
-        throw new Error(error);
-    })
-    
-}else {
-    throw new Error('User doesnt exist')
-}
+
+    else {
+            throw new Error('User doesnt exist')
+        }
 
 }catch(err){
-    console.log(err)
-    res.status(500).json({'message': err})
-}
-    
+        console.log(err)
+        res.status(500).json({'message': err})
+    }
+
 
 }
+
+
+
 
 
 exports.resetpassword = (req, res) => {
     const id =  req.params.id;
     Forgotpassword.findOne({ where : { id }}).then(forgotpasswordrequest => {
         if(forgotpasswordrequest && forgotpasswordrequest.isActive == 1){
-            forgotpasswordrequest.update({ active: false});
+            forgotpasswordrequest.update({ isActive: false});
             res.status(200).send(`<html>
                                     <script>
                                         function formsubmitted(e){
@@ -82,6 +97,8 @@ exports.updatepassword = async (req, res) => {
     try {
         const { newpassword } = req.query;
         const { resetpasswordid } = req.params;
+        console.log('req.quer>>>>',req.query)
+        console.log('req.params>>>>',req.params)
        const resetpasswordrequest = await Forgotpassword.findOne({ where : { id: resetpasswordid }})
        const user = await User.findOne({where: { id : resetpasswordrequest.userId}})
                 // console.log('userDetails', user)
@@ -100,7 +117,7 @@ exports.updatepassword = async (req, res) => {
                                 console.log(err);
                                 throw new Error(err);
                             }
-                            user.update({ password: hash }).then(() => {
+                            user.update({ pass: hash }).then(() => {
                                 res.status(201).json({message: 'Successfuly update the new password'})
                             })
                         });
@@ -110,7 +127,11 @@ exports.updatepassword = async (req, res) => {
             }
            
     } catch(error){
+        console.log(error)
         return res.status(403).json({ error, success: false } )
     }
 
 }
+
+
+

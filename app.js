@@ -19,7 +19,7 @@ app.use(bodyParser.json())
 
 app.use(route)
 app.use('/purchase',purchaseRoutes)
-app.use(resetPasswordRoutes)
+app.use('/password',resetPasswordRoutes)
 
 User.hasMany(Expense)
 Expense.belongsTo(User)
