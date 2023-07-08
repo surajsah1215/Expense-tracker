@@ -78,6 +78,33 @@ function showIsPremiumUser(){
     message.innerHTML = "you are a preimum user"
     message.appendChild(btn)
 
+    // <button onclick="download()" id="downloadexpense">Download File</button>
+
+    const dwnBtn = document.createElement('button')
+    dwnBtn.className = 'float-right'
+    dwnBtn.innerText = 'Download'
+    message.appendChild(dwnBtn)
+
+    dwnBtn.addEventListener('click',()=>{
+        const token = localStorage.getItem('token')
+        console.log(token)
+        axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
+        .then((response) => {
+            if(response.status === 201){
+                var a = document.createElement("a");
+                a.href = response.data.fileUrl;
+                a.download = 'myexpense.csv';
+                a.click();
+            } else {
+                throw new Error(response.data.message)
+            }
+
+        })
+        .catch((err) => {
+            showError(err)
+        });
+    })
+
     btn.addEventListener('click',showLeadboard)
     async function showLeadboard(e){
       const respone = await axios.get('http://localhost:3000/purchase/showLeadBoard')
@@ -87,6 +114,9 @@ function showIsPremiumUser(){
     }
 
 }
+
+
+
 function showLeadBoardData(obj){
 
     const parentElement = document.querySelector('.leadboardList');
