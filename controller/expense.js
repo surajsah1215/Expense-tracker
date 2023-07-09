@@ -5,6 +5,8 @@ const sequelize = require('../util/database')
 const AWS = require('aws-sdk')
 const { rejects } = require('assert')
 
+const ITEMS_PER_PAGE = 10
+
 exports.AddExpense = async(req,res,next)=>{
     try{
     const t = await sequelize.transaction()
@@ -34,13 +36,25 @@ exports.AddExpense = async(req,res,next)=>{
 
 exports.getExpense = async(req,res,next)=>{
     try{ 
+        const page = +req.query.page ||1
+        let totalItems;
         if(!req.user.id){
             return new Error('no data found')
         }
-        const expenses = await Expense.findAll({where:{userId:req.user.id}});
+        const expenses = await Expense.findAll({
+            limit: ITEMS_PER_PAGE,
+            offset: (page-1)*ITEMS_PER_PAGE,
+            where:{userId:req.user.id}});
         
         res.json({
-            expenses
+            expenses : expenses,
+            currentPage : page,
+            hasNextPage : ITEMS_PER_PAGE * page <totalItems,
+            nextPage : page+1,
+            hasPreviousPage :page>1,
+            previousPage : page-1,
+            lastPage : Math.ceil(totalItems/ITEMS_PER_PAGE)
+
         })
     }catch(err){
         console.log(err)

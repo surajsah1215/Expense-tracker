@@ -46,29 +46,82 @@
         <div class="leadboard-detail">
             <ul class="leadboardList"></ul>
         </div>
-   
+    <!-- <div class="pagination">
+
+    </div>      -->
    
 </body>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
 <script>
     window.addEventListener("DOMContentLoaded",async ()=>{
+        const page = 1
         const token = localStorage.getItem('token')
         const decodedtoken = parseJwt(token)
         const ispremium = decodedtoken.ispremium
         if(ispremium){
             showIsPremiumUser()
         }
-    await axios.get("http://localhost:3000/user/get-expense/",{headers:{"Authorization":token}})
+    await axios.get(`http://localhost:3000/user/get-expense/?${page}`,{headers:{"Authorization":token}})
     .then((respone)=> {
     for(var i=0; i<respone.data.expenses.length; i++){
         showExpense(respone.data.expenses[i]);
  
     }
+    showPagination(respone.data)
     // console.log(respone)
     }).catch(err => console.log(err));
 
 })
+
+function showPagination({
+    currentPage,
+    hasNextPage,
+    nextPage,
+    hasPreviousPage,
+    previousPage,
+    lastPage
+}){
+    const pagination= document.createElement('div');
+
+    pagination.innerHTML = ''
+    const expensebox = document.querySelector('.expense-box')
+    expensebox.append(pagination)
+    if(hasPreviousPage){
+        const btn2 = document.createElement('button')
+         btn2.innerHTML = previousPage
+         btn2.addEventListener('click',()=> getProducts(previousPage))
+         pagination.appendChild(btn2)
+    }
+    const btn1 = document.createElement('button')
+    btn1.innerHTML = `<h3>${currentPage}</h3>`
+    btn1.addEventListener('click',()=> getProducts(currentPage))
+    pagination.appendChild(btn1)
+
+    if(hasNextPage){
+        const btn3 = document.createElement('button')
+        btn3.innerHTML = nextPage 
+        btn3.addEventListener('click',()=> getProducts(nextPage))
+        pagination.appendChild(btn3)
+    }
+   
+}
+
+async function getProducts(page){
+    const token = localStorage.getItem('token')
+
+    await axios.get(`http://localhost:3000/user/get-expense/?${page}`,{headers:{"Authorization":token}})
+    .then((respone)=> {
+    for(var i=0; i<respone.data.expenses.length; i++){
+        showExpense(respone.data.expenses[i]);
+ 
+    }
+    showPagination(respone.data)
+    // console.log(respone)
+    }).catch(err => console.log(err));
+
+}
+
 function showIsPremiumUser(){
     document.getElementById('rzp-button').style.visibility = "hidden"
     const message = document.getElementById('message')
