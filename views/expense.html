@@ -90,7 +90,7 @@ function showIsPremiumUser(){
         console.log(token)
         axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
         .then((response) => {
-            if(response.status === 201){
+            if(response.status === 200){
                 var a = document.createElement("a");
                 a.href = response.data.fileUrl;
                 a.download = 'myexpense.csv';
