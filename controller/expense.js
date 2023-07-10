@@ -90,8 +90,8 @@ function uploadToS3(data,fileName){
 
 try{
     const BUCKET_NAME = 'appexpense'
-    const IAM_USER_KEY = 'AKIAX3AO5FEWZD26TKVV'
-    const IAM_USER_SECRET ='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'
+    const IAM_USER_KEY = process.env.IAM_USER_KEY
+    const IAM_USER_SECRET = process.env.IAM_USER_SECRET
 
     let s3bucket = new AWS.S3({
         accessKeyId:IAM_USER_KEY,

@@ -1,8 +1,9 @@
 const Sequilize = require('sequelize')
 
-const sequelize = new Sequilize('expense-tracker','root','123456',{
+
+const sequelize = new Sequilize(process.env.DB_NAME,process.env.DB_USER_NAME,process.env.DB_PASS,{
     dialect:'mysql',
-    host:'localhost',
+    host: process.env.HOST,
 
 })
 

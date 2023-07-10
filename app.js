@@ -7,6 +7,8 @@ const fs =  require('fs')
 const path = require('path')
 const cors = require('cors')
 app.use(cors())
+require('dotenv').config();
+
 
 const sequelize = require('./util/database');
 const User = require('./model/user')
@@ -41,5 +43,5 @@ User.hasMany(ForgetPassword)
 ForgetPassword.belongsTo(User)
 
 sequelize.sync()
- .then((response)=>app.listen(3000))
+ .then((response)=>app.listen(process.env.PORT||3000))
  .catch(err=>console.log(err))
