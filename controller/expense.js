@@ -58,7 +58,7 @@ exports.getExpense = async(req,res,next)=>{
         })
     }catch(err){
         console.log(err)
-        res.sendStatus(500).json({error:err});
+        res.sendStatus(500).json({error:'something went wrong'});
 
     }
 }
