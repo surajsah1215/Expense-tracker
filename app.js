@@ -27,6 +27,10 @@ app.use(route)
 app.use('/purchase',purchaseRoutes)
 app.use('/password',resetPasswordRoutes)
 
+app.use((req,res)=>{
+    res.sendFile(path.join(__dirname,`views/${req.url}`))
+})
+
 const accesLogStream = fs.createWriteStream(path.join(__dirname,'access.log'),{flags:'a'})
 
 app.use(helmet())
