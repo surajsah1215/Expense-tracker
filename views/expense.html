@@ -28,6 +28,9 @@
                     <option id="Movie">Movie</option>
                 </select>
             </div>
+            <ul id="expenses" class="list-group mt-2">
+
+            </ul>
             <button class="btn">Add Expense</button>
             <!-- type="submit" -->
            
@@ -46,9 +49,9 @@
         <div class="leadboard-detail">
             <ul class="leadboardList"></ul>
         </div>
-    <!-- <div class="pagination">
+    <div class="pagination" id="pagination">
 
-    </div>      -->
+    </div>     
    
     <!-- <div class="downloadedcsv" class="float-right">
         <button >Downloaded Csvs </button>
@@ -67,64 +70,56 @@
         if(ispremium){
             showIsPremiumUser()
         }
-    await axios.get(`http://18.188.58.181:3000/user/get-expense/?${page}`,{headers:{"Authorization":token}})
+    await axios.get(`http://18.188.58.181:3000/user/get-expense/?page=${page}`,{headers:{"Authorization":token}})
     .then((respone)=> {
     for(var i=0; i<respone.data.expenses.length; i++){
         showExpense(respone.data.expenses[i]);
  
     }
     showPagination(respone.data)
-    // console.log(respone)
     }).catch(err => console.log(err));
 
 })
 
-function showPagination({
-    currentPage,
-    hasNextPage,
-    nextPage,
-    hasPreviousPage,
-    previousPage,
-    lastPage
-}){
-    console.log(previousPage)
-    const pagination= document.createElement('div');
+function showPagination(obj){
+    const pagination= document.getElementById('pagination');
 
     pagination.innerHTML = ''
     const expensebox = document.querySelector('.expense-box')
     expensebox.append(pagination)
-    if(hasPreviousPage){
-        const btn2 = document.createElement('button')
-         btn2.innerHTML = previousPage
-         btn2.addEventListener('click',()=> getProducts(previousPage))
-         pagination.appendChild(btn2)
-    }
-    const btn1 = document.createElement('button')
-    btn1.innerHTML = `<h3>${currentPage}</h3>`
-    btn1.addEventListener('click',()=> getProducts(currentPage))
-    pagination.appendChild(btn1)
+    
+    if(obj.hasPreviousPage){
+        let btn2 = document.createElement('button')
+        btn2.setAttribute('class','page-item page-link m-1')
+        btn2.innerHTML = `<h3>${obj.previousPage}</h3>`
+        btn2.addEventListener('click',() => getProducts(obj.previousPage))
+        pagination.appendChild(btn2)
+   } 
 
-    if(hasNextPage){
-        const btn3 = document.createElement('button')
-        btn3.innerHTML = nextPage 
-        btn3.addEventListener('click',()=> getProducts(nextPage))
+  let btn1 = document.createElement('button')
+  btn1.setAttribute('class','page-item page-link m-1')
+  btn1.innerHTML = `<h3>${obj.currentPage}</h3>`
+  btn1.addEventListener('click',() => getProducts(obj.currentPage))
+  pagination.appendChild(btn1)
+  
+   if(obj.hasNextPage){
+        let btn3 = document.createElement('button')
+        btn3.setAttribute('class','page-item page-link m-1')
+        btn3.innerHTML = `<h3>${obj.nextPage}</h3>`
+        btn3.addEventListener('click',() => getProducts(obj.nextPage))
         pagination.appendChild(btn3)
-    }
+   }
    
 }
 
 async function getProducts(page){
-    const token = localStorage.getItem('token')
-
-    await axios.get(`http://18.188.58.181:3000/user/get-expense/?${page}`,{headers:{"Authorization":token}})
-    .then((respone)=> {
-    for(var i=0; i<respone.data.expenses.length; i++){
-        showExpense(respone.data.expenses[i]);
- 
-    }
-    showPagination(respone.data)
-    // console.log(respone)
-    }).catch(err => console.log(err));
+    
+    try{
+        token = localStorage.getItem('token')
+        const expresponse  = await axios.get(`http://18.188.58.181:3000/user/get-expense/?page=${page}`,{headers:{"Authorization":token}})
+        showPagination(expresponse.data) 
+        expresponse.data.expenses.map((item)=> showExpense(item))
+    }catch(err) {console.log(err)};
 
 }
 
