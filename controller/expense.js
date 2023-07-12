@@ -1,9 +1,8 @@
-const { resolve } = require('path')
 const Expense  = require('../model/expense')
 const User = require('../model/user')
 const sequelize = require('../util/database')
 const AWS = require('aws-sdk')
-const { rejects } = require('assert')
+const Urltable = require('../model/url')
 
 const ITEMS_PER_PAGE = 10
 
@@ -130,6 +129,10 @@ exports.downloadExpense = async(req,res)=>{
     const userId = req.user.id
     const fileName =  `Expense${userId}/${new Date()}.txt`
     const fileUrl = await uploadToS3(stringifieldExpenses,fileName)
+    const response = await Urltable.create({
+        url: fileUrl,
+        userId: userId
+      })
     res.status(200).json({fileUrl,sucess:true})
 
  }catch(err){
@@ -137,3 +140,14 @@ exports.downloadExpense = async(req,res)=>{
  }
 }
 
+
+exports.usersAllExpenseslink = async (req, res) => {
+    try {
+      const userid = req.user.id
+      const result = await Urltable.findAll({ where: { userId: userid } });
+      res.status(200).json({ result })
+    } catch (error) {
+      res.status(500).json({ error });
+  
+    }
+  }

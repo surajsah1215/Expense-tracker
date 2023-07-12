@@ -50,6 +50,11 @@
 
     </div>      -->
    
+    <!-- <div class="downloadedcsv" class="float-right">
+        <button >Downloaded Csvs </button>
+    </div> -->
+    <div id="table"><p></p></div>
+   
 </body>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.22.0/axios.min.js"></script>
@@ -124,6 +129,7 @@ async function getProducts(page){
 }
 
 function showIsPremiumUser(){
+    const token = localStorage.getItem('token')
     document.getElementById('rzp-button').style.visibility = "hidden"
     const message = document.getElementById('message')
     const btn = document.createElement('button');
@@ -139,8 +145,12 @@ function showIsPremiumUser(){
     dwnBtn.innerText = 'Download'
     message.appendChild(dwnBtn)
 
+
+    const urldwnBtn = document.createElement('button')
+    urldwnBtn.innerText = 'Downloaded Csv'
+    message.appendChild(urldwnBtn)
+
     dwnBtn.addEventListener('click',()=>{
-        const token = localStorage.getItem('token')
         console.log(token)
         axios.get('http://18.188.58.181:3000/user/download', { headers: {"Authorization" : token} })
         .then((response) => {
@@ -167,7 +177,45 @@ function showIsPremiumUser(){
         }
     }
 
+    urldwnBtn.addEventListener('click',async()=>{
+        const respone = await axios.get('http://18.188.58.181:3000/alllinks',{ headers: {"Authorization" : token} })
+            buildTable( respone.data.result);
+        
+    })
+
 }
+
+function buildTable( data) {
+    var table = document.createElement('table');
+table.id = 'myTable';
+
+var headers = ['ID', 'URL'];
+var headerRow = table.insertRow();
+for (var i = 0; i < headers.length; i++) {
+  var headerCell = document.createElement('th');
+  headerCell.textContent = headers[i];
+  headerRow.appendChild(headerCell);
+}
+
+
+for (var j = 0; j < data.length; j++) {
+  var rowData = data[j];
+  var dataRow = table.insertRow();
+
+  var idCell = dataRow.insertCell();
+  idCell.textContent = rowData.id;
+
+  var urlCell = dataRow.insertCell();
+  var link = document.createElement('a');
+  link.href = rowData.url;
+  link.textContent = 'Download File ' + rowData.id;
+  urlCell.appendChild(link);
+}
+
+var targetElement = document.getElementById('table');
+targetElement.appendChild(table);
+}
+
 
 
 

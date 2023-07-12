@@ -15,6 +15,7 @@ const User = require('./model/user')
 const Expense = require('./model/expense')
 const Order = require('./model/order')
 const ForgetPassword = require('./model/forgetPassword')
+const url = require('./model/url')
 
 
 const route = require('./routes/user')
@@ -46,6 +47,8 @@ Order.belongsTo(User)
 User.hasMany(ForgetPassword)
 ForgetPassword.belongsTo(User)
 
+User.hasMany(url)
+url.belongsTo(User)
 sequelize.sync()
  .then((response)=>app.listen(process.env.PORT||3000))
  .catch(err=>console.log(err))
