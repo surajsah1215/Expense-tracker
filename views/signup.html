@@ -46,7 +46,7 @@
                 email:email,
                 pass:password
             }
-            axios.post('http://18.188.58.181:3000/signup', userDetail)
+            axios.post('http://localhost:3000/signup', userDetail)
              .then(response=>{
                  if(response.status == 201) location.href="./login.html"
              })

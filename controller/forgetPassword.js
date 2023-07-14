@@ -33,7 +33,7 @@ const user = await User.findOne({where:{email}})
         sendSmtpEmail.to = [{ email: email }];
         sendSmtpEmail.subject = 'This is the link to change your password';
         sendSmtpEmail.textContent  = 'click here to reset your password';
-        sendSmtpEmail.htmlContent   =  `<a href="http://18.188.58.181:3000/password/resetpassword/${id}">Reset password</a>`
+        sendSmtpEmail.htmlContent   =  `<a href="http://localhost:3000/password/resetpassword/${id}">Reset password</a>`
 
 
         sendinblue.sendTransacEmail(sendSmtpEmail)

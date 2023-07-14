@@ -38,7 +38,7 @@
                 pass: e.target.password.value
             }
 
-            axios.post('http://18.188.58.181:3000/login', userDetail)
+            axios.post('http://localhost:3000/login', userDetail)
             .then(response=>{
                 console.log(response.status)
                 if(response.status === 200){

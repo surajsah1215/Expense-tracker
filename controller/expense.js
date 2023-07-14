@@ -35,9 +35,10 @@ exports.AddExpense = async(req,res,next)=>{
 
 exports.getExpense = async(req,res,next)=>{
     try{ 
+        console.log(req.session)
         const ITEMS_PER_PAGE = 10
         const page = +req.query.page ||1
-        let totalItems = await Expense.count({where:{userId:req.user.id}})       
+        let totalItems = await Expense.count({where:{userId:req.user.id}})  
          if(!req.user.id){
             return new Error('no data found')
         }
