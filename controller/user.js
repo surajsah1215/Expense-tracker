@@ -10,7 +10,6 @@ exports.PostSignUp = async(req,res,next)=>{
     try{
        
 
-    console.log(req.body)
     const name = req.body.name
     const email = req.body.email
     const phone = req.body.phone
@@ -18,7 +17,7 @@ exports.PostSignUp = async(req,res,next)=>{
 
     const emailExists = await User.findOne({ where: { email: email } });
     if (emailExists ) {
-      res.json("Email already registered")
+      return res.json("Email already registered")
     }
     const saltRounds = 10
     bcrypt.genSalt(saltRounds).then(salt=>{
@@ -56,7 +55,7 @@ exports.PostLogin = async (req,res,next)=>{
                 return res.json({success: false, message: 'something went wrong'})
             }
             if(response){
-                const token = helper.generateAccessToken(emailExist.id,emailExist.ispremium)
+                const token = helper.generateAccessToken(emailExist.id,emailExist.ispremium)// for converting userid in to hashvalue
                 // console.log(token)
                return res.json({"message": "login succesfully",token:token})
             }

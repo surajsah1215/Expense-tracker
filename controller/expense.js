@@ -35,7 +35,6 @@ exports.AddExpense = async(req,res,next)=>{
 
 exports.getExpense = async(req,res,next)=>{
     try{ 
-        console.log(req.session)
         const ITEMS_PER_PAGE = 10
         const page = +req.query.page ||1
         let totalItems = await Expense.count({where:{userId:req.user.id}})  
@@ -75,7 +74,7 @@ exports.deleteExpense = async(req,res,next)=>{
         }
         else{
             total_amount  = Number(req.user.total_amount) - Number(expenseuser.amount)
-            await User.update({total_amount:total_amount},{where:{id:req.user.id}})
+            await User.update({total_amount:total_amount},{where:{id:req.user.id},tramsaction:t})
             await t.commit()
            
         res.status(200).json({sucess:true,message:'Deleted sucessfully'})
