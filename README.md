@@ -1,5 +1,4 @@
-# Expense-tracker
-
+# Day to Day Expense
 **Project Title: Day-to-Day Expense Management System
 **
 Description:
