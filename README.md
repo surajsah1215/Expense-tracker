@@ -1,6 +1,5 @@
 # Day to Day Expense
-**Project Title: Day-to-Day Expense Management System
-**
+
 Description:
 The Day-to-Day Expense Management System is a web application designed to help users manage their daily expenses effectively. It allows users to sign up, log in, and add their expenses using price input fields, description input fields, and category selection. The system provides two premium features that enhance the user experience.
 
