@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Expense = require('../model/expense'); // Assuming you have a Mongoose model for Expense
-const User = require('../model/user'); // Assuming you have a Mongoose model for User
-const Urltable = require('../model/url'); // Assuming you have a Mongoose model for Urltable
+const Expense = require('../model/expense')
+const User = require('../model/user')
+const Urltable = require('../model/url')
 const AWS = require('aws-sdk');
 
 const ITEMS_PER_PAGE = 10;
