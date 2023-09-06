@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 // Define a Mongoose schema
-const expenseSchema = new mongoose.Schema({
-  amount: Number,
-  description: String,
-  category: String,
+const urlSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: true,
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference the User model
@@ -12,6 +13,6 @@ const expenseSchema = new mongoose.Schema({
 });
 
 // Create a Mongoose model from the schema
-const Expense = mongoose.model('Expense', expenseSchema);
+const Urltable = mongoose.model('Urltable', urlSchema);
 
-module.exports = Expense;
+module.exports = Urltable;

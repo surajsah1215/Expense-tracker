@@ -8,9 +8,9 @@ const verifyToken = (req,res,next)=>{
     const token = req.header('Authorization')
     const secretKey = process.env.TOKEN
 
-    const userId = jwt.verify(token,`${secretKey}`)
-    User.findByPk(userId['id']).then(user=>{
-        // console.log(JSON.stringify(user));
+    const userId = jwt.verify(token,`${secretKey}`)//decrypting userId hashcode to {id,ispremium,iat}
+    User.findById(userId.id).then(user=>{
+        // console.log('userr>>>',JSON.stringify(user));
         req.user = user
         next()
     }).catch(err=>{

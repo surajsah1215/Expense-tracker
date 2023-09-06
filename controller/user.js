@@ -1,77 +1,61 @@
-const User = require('../model/user')
-const bcrypt = require("bcrypt")
+const User = require('../model/user'); 
+const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const helper = require('./helper')
+const helper = require('./helper');
 
+exports.PostSignUp = async (req, res, next) => {
+  try {
+    const { name, email, phone, pass } = req.body;
 
+    const emailExists = await User.findOne({ email: email });
 
-
-exports.PostSignUp = async(req,res,next)=>{
-    try{
-       
-
-    console.log(req.body)
-    const name = req.body.name
-    const email = req.body.email
-    const phone = req.body.phone
-    const pass  = req.body.pass
-
-    const emailExists = await User.findOne({ where: { email: email } });
-    if (emailExists ) {
-      res.json("Email already registered")
+    if (emailExists) {
+      return res.status(400).json({ message: "Email already registered" });
     }
-    const saltRounds = 10
-    bcrypt.genSalt(saltRounds).then(salt=>{
-        return bcrypt.hash(pass,salt)
-    }).then(hash =>{
-        const data =  User.create({
-            name:name,
-            email:email, 
-            phone:phone,
-            pass:hash
-        })
-        res.status(201).json({user:data})
-    }).catch(err=>{console.log(err.message)})
-    
-}catch(err){
-    console.log(err)
-}
 
-}
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(pass, saltRounds);
 
-//  const generateAccessToken = function(id,ispremium){
-//     const secretKey = 'Suraj@sharpner'
-//     return jwt.sign({id,ispremium},`${secretKey}`)
-// }
+    const user = new User({
+      name: name,
+      email: email,
+      phone: phone,
+      pass: hash,
+    });
 
-exports.PostLogin = async (req,res,next)=>{
-    try{
-    const email = req.body.email
-    const pass = req.body.pass
+    const savedUser = await user.save();
 
-    const emailExist = await User.findOne({where:{email:email}})
-    if(emailExist){
-        bcrypt.compare(pass,emailExist.pass,function(err,response){
-            if(err){
-                return res.json({success: false, message: 'something went wrong'})
-            }
-            if(response){
-                const token = helper.generateAccessToken(emailExist.id,emailExist.ispremium)
-                // console.log(token)
-               return res.json({"message": "login succesfully",token:token})
-            }
-            else{
-                return res.status(401).json({"message":"password inncorect"})
-            }
-        })
-        
+    res.status(201).json({ user: savedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+exports.PostLogin = async (req, res, next) => {
+  try {
+    const { email, pass } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    else{
-        return res.status(404).json({"message":"user not found"})
-    }    
-}catch(err){
-        console.log(err)
-    }
-}
 
-// module.exports = generateAccessToken()
+    bcrypt.compare(pass, user.pass, function (err, response) {
+      if (err) {
+        return res.status(500).json({ message: "Something went wrong" });
+      }
+
+      if (response) {
+        const token = helper.generateAccessToken(user._id, user.ispremium); // for converting userid into a hash value
+        return res.json({ message: "Login successfully", token: token });
+      } else {
+        return res.status(401).json({ message: "Password incorrect" });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};

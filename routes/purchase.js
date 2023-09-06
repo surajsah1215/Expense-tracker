@@ -5,7 +5,7 @@ const purchasecontroler = require('../controller/purchase')
 const premiumFeature = require('../controller/premiumFeature')
 
 
-router.get('/premiummembership/',userAunthentication.verifyToken,purchasecontroler.purchasePreimum)
+router.get('/premiummembership/',userAunthentication.verifyToken,purchasecontroler.purchasePremium)
 router.post('/updatetransactionstatus/',userAunthentication.verifyToken,purchasecontroler.updateTransactionState)
 router.get('/showLeadBoard',premiumFeature.premiumFeature)
 
