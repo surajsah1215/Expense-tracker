@@ -19,13 +19,17 @@ apiKey.apiKey = process.env.API_KEY
 const sendinblue = new SibApiV3Sdk.TransactionalEmailsApi();
 
 
-const user = await User.findOne({where:{email}})
+const user = await User.findOne({ email });
     if(user){
         const id = uuid.v4()
-        Forgotpassword.create({id:id,userId:user.id,isActive:true})
-        .catch(err=>{
-            throw new Error(err)
-        })
+      
+        const newForgotPasswordRequest = new ForgotPassword({
+            _id: id,
+            userId: user._id,
+            isActive: true,
+          });
+    
+          await newForgotPasswordRequest.save();
 
         
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
@@ -67,9 +71,11 @@ const user = await User.findOne({where:{email}})
 
 exports.resetpassword = (req, res) => {
     const id =  req.params.id;
-    Forgotpassword.findOne({ where : { id }}).then(forgotpasswordrequest => {
-        if(forgotpasswordrequest && forgotpasswordrequest.isActive == 1){
-            forgotpasswordrequest.update({ isActive: false});
+
+        ForgotPassword.findOne({ _id: id })
+            .then(async (forgotPasswordRequest) => {
+              if (forgotPasswordRequest && forgotPasswordRequest.isActive === true) {
+                await forgotPasswordRequest.updateOne({ isActive: false });        
             res.status(200).send(`<html>
                                     <script>
                                         function formsubmitted(e){
@@ -97,39 +103,37 @@ exports.updatepassword = async (req, res) => {
     try {
         const { newpassword } = req.query;
         const { resetpasswordid } = req.params;
-        console.log('req.quer>>>>',req.query)
-        console.log('req.params>>>>',req.params)
-       const resetpasswordrequest = await Forgotpassword.findOne({ where : { id: resetpasswordid }})
-       const user = await User.findOne({where: { id : resetpasswordrequest.userId}})
-                // console.log('userDetails', user)
-                if(user) {
-                    //encrypt the password
-
-                    const saltRounds = 10;
-                    bcrypt.genSalt(saltRounds, function(err, salt) {
-                        if(err){
-                            console.log(err);
-                            throw new Error(err);
-                        }
-                        bcrypt.hash(newpassword, salt, function(err, hash) {
-                            // Store hash in your password DB.
-                            if(err){
-                                console.log(err);
-                                throw new Error(err);
-                            }
-                            user.update({ pass: hash }).then(() => {
-                                res.status(201).json({message: 'Successfuly update the new password'})
-                            })
-                        });
-                    });
-            } else{
-                return res.status(404).json({ error: 'No user Exists', success: false})
-            }
-           
-    } catch(error){
-        console.log(error)
-        return res.status(403).json({ error, success: false } )
-    }
+    
+        const resetPasswordRequest = await ForgotPassword.findOne({ _id: resetpasswordid });
+    
+        if (resetPasswordRequest) {
+          const user = await User.findOne({ _id: resetPasswordRequest.userId });
+    
+          if (user) {
+            // Encrypt the password
+            const saltRounds = 10;
+            bcrypt.genSalt(saltRounds, (err, salt) => {
+              if (err) {
+                console.error(err);
+                throw new Error(err);
+              }
+              bcrypt.hash(newpassword, salt, async (err, hash) => {
+                if (err) {
+                  console.error(err);
+                  throw new Error(err);
+                }
+                await user.updateOne({ pass: hash });
+                res.status(201).json({ message: 'Successfully updated the new password' });
+              });
+            });
+          } else {
+            return res.status(404).json({ error: 'No user exists', success: false });
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        return res.status(403).json({ error, success: false });
+      }
 
 }
 

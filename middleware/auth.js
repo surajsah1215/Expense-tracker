@@ -9,7 +9,7 @@ const verifyToken = (req,res,next)=>{
     const secretKey = process.env.TOKEN
 
     const userId = jwt.verify(token,`${secretKey}`)//decrypting userId hashcode to {id,ispremium,iat}
-    User.findByPk(userId['id']).then(user=>{
+    User.findById(userId.id).then(user=>{
         // console.log('userr>>>',JSON.stringify(user));
         req.user = user
         next()
